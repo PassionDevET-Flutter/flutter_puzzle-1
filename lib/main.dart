@@ -50,17 +50,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // we need to find out the image size, to be used in the PuzzlePiece widget
-  Future<Size> getImageSize(Image image) async {
-    final Completer<Size> completer = Completer<Size>();
+  Future getImageSize(Image image) async {
+    final Completer completer = Completer();
 
     image.image.resolve(const ImageConfiguration()).addListener(
-          (ImageInfo info, bool _) {
-        completer.complete(Size(
-          info.image.width.toDouble(),
-          info.image.height.toDouble(),
-        ));
-      },
-    );
+          (ImageStreamListener(
+            (ImageInfo info, bool _) {
+              completer.complete(Size(
+                info.image.width.toDouble(),
+                info.image.height.toDouble(),
+              ));
+            },
+          )),
+        );
 
     final Size imageSize = await completer.future;
 
@@ -74,7 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int x = 0; x < widget.rows; x++) {
       for (int y = 0; y < widget.cols; y++) {
         setState(() {
-          pieces.add(PuzzlePiece(key: GlobalKey(),
+          pieces.add(PuzzlePiece(
+              key: GlobalKey(),
               image: image,
               imageSize: imageSize,
               row: x,
@@ -112,14 +115,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SafeArea(
         child: new Center(
-          child: _image == null
-              ? new Text('No image selected.')
-              : Stack(children: pieces)
-        ),
+            child: _image == null
+                ? new Text('No image selected.')
+                : Stack(children: pieces)),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showModalBottomSheet(context: context,
+          showModalBottomSheet(
+              context: context,
               builder: (BuildContext context) {
                 return SafeArea(
                   child: new Column(
@@ -146,8 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 );
-              }
-          );
+              });
         },
         tooltip: 'New Image',
         child: Icon(Icons.add),
